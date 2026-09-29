@@ -1,0 +1,1191 @@
+{
+  "name": "Level 3 - LinkedIn Automation - 5 day agentic",
+  "nodes": [
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"problem\": \"\",\n  \"when_it_matters\": \"\",\n  \"core_idea\": \"\",\n  \"practical_approach\": [\n    \"\",\n    \"\",\n    \"\"\n  ],\n  \"common_mistake\": \"\",\n  \"result\": \"\"\n}"
+      },
+      "id": "932f6fd7-dea4-42a7-bdb3-d8c7fa82b1f3",
+      "name": "Structured Output Parser1",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -176,
+        832
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic: {{ $json.Topic }}\n\nCategory/Niche: {{ $json.Category || 'General Professional' }}\n\nTarget Audience: {{ $json.Audience || 'Professionals and business leaders' }}\n\nInstruction: Generate the Structure Blueprint using the sections defined in your System Message. Create content that establishes thought leadership and provides actionable value.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Role: You are a Senior Content Strategist and LinkedIn Thought Leadership Expert.\n\nTask: Create a \"Teaching Blueprint\" for a high-authority LinkedIn post based on the provided topic. You do NOT write the final copy; you define the logical skeleton that ensures the reader gains genuine insight and actionable knowledge.\n\nRules:\n1. Focus on \"The Why\": Explain the reasoning and principles behind the advice, not just surface-level tips.\n2. Depth Over Fluff: Identify 1-2 key concepts, frameworks, or mental models that make this topic valuable.\n3. Real-World Application: Include practical context - when and how this applies in professional settings.\n4. Expert Tone: Avoid marketing buzzwords (\"unlock,\" \"revolutionary,\" \"game-changer\"). Use precise, professional language.\n5. Formatting: Write in Sentence Case. Only capitalize the first letter of sentences and proper nouns.\n\nStructure Requirements:\n• The Problem: The specific challenge, pain point, or misconception your audience faces.\n• Real-World Context: When this insight becomes critical (e.g., during scaling, leadership transitions, career pivots).\n• Core Concept: The \"Mental Model\" or key principle the reader needs to understand.\n• Practical Approach: 3-4 actionable steps or strategies. Be specific, not generic.\n• The \"Silent Killer\": A common mistake that undermines success in this area.\n• The Result: The professional or business outcome of applying this correctly."
+        }
+      },
+      "id": "33091c8f-717d-4351-b9e5-91aecf388be7",
+      "name": "Structure & Logic Designer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -320,
+        608
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3,
+      "notes": "Builds the technical blueprint (The 'Why')."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a LinkedIn post using the following raw data. Follow the structure strictly:\n\nTopic: {{ $('Get Pending Topics').item.json.Topic }}\n\nProblem: \n{{ $json.output.problem }}\n\nWhen it matters: \n{{ $json.output.when_it_matters }}\n\nCore idea: \n{{ $json.output.core_idea }}\n\nPractical approach: \n{{ Array.isArray($json.output.practical_approach) ? $json.output.practical_approach.join(\"\\n- \") : $json.output.practical_approach }}\n\nCommon mistake: \n{{ $json.output.common_mistake }}\n\nResult: \n{{ $json.output.result }}\n\nFinal Instruction: End the post with a thought-provoking question that invites discussion.",
+        "options": {
+          "systemMessage": "You are a world-class LinkedIn Content Creator and Thought Leadership Expert. Your goal is to turn structured insights into high-engagement \"authority\" posts that build professional credibility.\n\nSTRICT WRITING RULES:\n1. NO INTROS: Do not start with \"Here is your post\" or \"Sure thing.\" Start immediately with the Hook.\n2. HOOK: Create a punchy, 1-line opening that challenges conventional thinking or highlights a pain point.\n3. SCANNABILITY: Use frequent line breaks. No paragraph should be longer than 2 sentences.\n4. TONE: Direct, professional, and genuinely helpful. Speak from experience and expertise.\n5. FORMATTING: Use bullet points (•) for lists. Ensure there is a blank line between every section.\n6. NO EMOJI OVERLOAD: Use max 2-3 emojis in the entire post, or none at all.\n7. AUTHENTICITY: Write as if sharing hard-won professional wisdom, not regurgitating tips.\n8. SPECIFICITY: Use concrete examples, numbers, or scenarios where possible."
+        }
+      },
+      "id": "0d5f93c0-d0ad-4bc1-b471-70f860aaebd9",
+      "name": "Draft Copywriter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        32,
+        608
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3,
+      "notes": "Enforces branding & kills AI fluff."
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "sandesh.designworld@gmail.com",
+        "subject": "=Ready for LinkedIn: {{ $('Get Pending Topics').item.json.Topic }}",
+        "message": "=<strong>Ready for LinkedIn: {{ $('Get Pending Topics').item.json.Topic }}</strong>\n\n{{ $json.Content }}\n\nLink for image - {{ $json['Image Link'] }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 48
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "id": "ec109b48-832f-453e-9bc9-d07514033ee9",
+      "name": "Human Approval (Gmail)",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1120,
+        1136
+      ],
+      "webhookId": "5d1980e2-8c9e-4f94-bd0b-5beecbc03a8f",
+      "typeVersion": 2.2,
+      "alwaysOutputData": false,
+      "notesInFlow": false,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "rWcR5BOLvaSXQefG",
+          "name": "Gmail account 4"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE",
+          "mode": "list",
+          "cachedResultName": "LinkedIN_Live",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ $('Get Pending Topics').item.json.Topic }}",
+            "Status": "Drafted",
+            "Image Link": "={{ $json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Difficulty",
+              "displayName": "Difficulty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Link",
+              "displayName": "Image Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a0c1efa6-21d2-41f9-835e-cf3338e909b1",
+      "name": "Log Published Content",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        736,
+        1136
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WKW9r7UgExXGVp6b",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please review and edit the following LinkedIn post according to your strict branding and formatting rules:\n\n{{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a Senior Content Editor specializing in LinkedIn thought leadership. Your role is to polish posts to ensure they sound like they were written by an established industry expert.\n\nSTRICT EDITING RULES:\n1. NO EM DASHES: You must never use an em dash (—).\n2. DASH SPACING: Replace any em dashes or tight hyphens with a spaced hyphen: \"word - word\". This is a non-negotiable branding requirement.\n3. REMOVE \"FOLLOW\" CTAs: Delete any requests for the reader to follow, like, or subscribe. The value of the content should speak for itself.\n4. EXPERT SIGN-OFF: Replace any deleted CTA with a confident closing statement that reinforces the key insight.\n5. HASHTAGS: End every post with 3-5 relevant hashtags based on the topic.\n6. NO INTRO/OUTRO: Output only the final edited post. Do not include phrases like \"Here is the revised version.\"\n7. KILL AI FLUFF: Eliminate these words/phrases: \"unlock,\" \"harness,\" \"revolutionary,\" \"dive deep,\" \"game changer,\" \"seamlessly,\" \"mastering,\" \"look no further,\" \"in today's world,\" \"it's no secret.\"\n8. STRATEGIC ENGAGEMENT: End with a thought-provoking question that invites meaningful discussion.\n9. Remove all styles (bold, italic, etc) from the post - plain text only.\n10. AUTHENTICITY CHECK: Ensure the post sounds like genuine professional insight, not generic advice.\n\nTONE & VOICE:\n- Professional, direct, and insightful.\n- Use \"white space\" between every section to ensure mobile readability.\n- Use bullet points (•) for practical steps.\n\nIf the input text already follows these rules, simply ensure the spacing and formatting are perfect and return it."
+        }
+      },
+      "id": "45350fb0-0384-4922-88e3-13cb8d82fa86",
+      "name": "Style & Compliance Editor",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        384,
+        608
+      ],
+      "notesInFlow": true,
+      "typeVersion": 3,
+      "notes": "Closes the loop by updating memory for next week."
+    },
+    {
+      "parameters": {
+        "content": "## PHASE 2: ENGINEERING",
+        "height": 464,
+        "width": 336,
+        "color": 2
+      },
+      "id": "70aed722-9173-4a58-bea7-1455b2992af0",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## PHASE 3: CREATIVE & QC",
+        "height": 464,
+        "width": 640,
+        "color": 4
+      },
+      "id": "80bdd177-bdc4-4d5c-9415-a493c3698f51",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## PHASE 4: Approval & DELIVERY",
+        "height": 512,
+        "width": 576,
+        "color": 5
+      },
+      "id": "f50a5fc5-a895-40c6-9494-d107e3eb5d25",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        992
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "id": "8dcbba05-5e03-4468-8a70-45252c367094",
+      "name": "Wait Timed Out (48h)",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1312,
+        1536
+      ],
+      "notesInFlow": true,
+      "typeVersion": 1,
+      "notes": "Execution timed out after 48h."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE",
+          "mode": "list",
+          "cachedResultName": "LinkedIN_Live",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9ebef97-24ff-4a4f-a2b0-822db9a1c108",
+      "name": "Get Pending Topics",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -656,
+        608
+      ],
+      "typeVersion": 4.7,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WKW9r7UgExXGVp6b",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 10,
+              "triggerAtMinute": 15
+            }
+          ]
+        }
+      },
+      "id": "62b4fca9-5247-4afb-9413-a50e03249735",
+      "name": "Weekly Post Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -880,
+        608
+      ],
+      "typeVersion": 1.3
+    },
+    {
+      "parameters": {
+        "content": "## PHASE 1: Scheduled Execution",
+        "height": 464,
+        "width": 544,
+        "color": 3
+      },
+      "id": "6a81c08a-351e-4f5d-ae11-720bbcb866a9",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -976,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a detailed visual concept and image-generation prompt using the following structured content.\n\nTopic:\n{{ $('Get Pending Topics').item.json.Topic }}\n\nProblem:\n{{ $json.output.problem }}\n\nWhen it matters:\n{{ $json.output.when_it_matters }}\n\nCore idea:\n{{ $json.output.core_idea }}\n\nPractical approach:\n{{ Array.isArray($json.output.practical_approach) ? $json.output.practical_approach.join(\"\\n- \") : $json.output.practical_approach }}\n\nCommon mistake:\n{{ $json.output.common_mistake }}\n\nResult:\n{{ $json.output.result }}\n\nFinal Instruction:\nThe output must be suitable for generating a professional, scroll-stopping LinkedIn image that visually reinforces the idea without relying on text-heavy overlays.",
+        "options": {
+          "systemMessage": "You are a Visual Strategy & AI Image Prompt Architect specializing in professional thought-leadership visuals for LinkedIn.\n\nYour role is to translate structured business insights into high-quality visual concepts and precise image-generation prompts.\n\nSTRICT RULES:\n1. DO NOT write marketing copy or captions.\n2. DO NOT repeat the text content verbatim inside the image.\n3. Focus on SYMBOLISM, METAPHOR, and SCENE COMPOSITION.\n4. The image must communicate the idea at a glance, even without reading the post.\n5. Assume the audience is senior professionals, founders, and decision-makers.\n6. Avoid generic stock-photo clichés (people shaking hands, smiling teams, random dashboards).\n7. Prefer clean, minimal, cinematic, or editorial-style visuals.\n\nOUTPUT STRUCTURE (STRICT):\n\n1. Visual Concept (1–2 lines)\n   - Describe the core visual idea and metaphor.\n\n2. Scene & Composition\n   - Environment\n   - Subject\n   - Camera angle or framing\n   - Mood / emotion\n\n3. Symbolic Elements\n   - Objects, contrasts, or visual metaphors that represent:\n     • the problem\n     • the shift or insight\n     • the outcome\n\n4. Style & Aesthetic\n   - Photography / illustration / cinematic / abstract\n   - Lighting style\n   - Color palette\n   - Level of realism\n\n5. Image Generation Prompt\n   - A single, well-structured prompt that can be directly pasted into an image-generation model.\n   - No hashtags.\n   - No emojis.\n   - No text instructions like “add headline text”.\n\n6. Negative Prompt (if applicable)\n   - Elements to avoid (e.g., clutter, text blocks, cartoonish style, exaggerated expressions).\n\nTONE:\n- Calm authority\n- Strategic\n- Editorial, not promotional\n\nThe final output should feel like it was crafted by a creative director who understands business strategy, not a generic AI art generator."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        32,
+        1136
+      ],
+      "id": "1df3edf1-7653-4786-9c96-bca6f2524fa2",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "person": "VglrUiBWui",
+        "text": "={{ $('Get row(s)').item.json.Content }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        1104
+      ],
+      "id": "d70bdcb0-bd6d-41f0-9c1f-5ebdcc3c4f7c",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "gc8W4qMBqnx7to2j",
+          "name": "Sandesh LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Update file').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1520,
+        1104
+      ],
+      "id": "c928d449-edbb-49fd-8f0a-fda0640ca7bd",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WWAxKJxCL7BXaC7y",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Phase 4: Visual Generation",
+        "height": 336,
+        "width": 496,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "40d8878d-5daf-47ec-aa50-7040425c38f3",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Phase 5: Logging Output",
+        "height": 336,
+        "width": 496,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "346acab2-4fd1-4a9d-a6ad-70a396858972",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b3b6e3a7-6301-41f8-ade3-bbe66a90bb52",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1312,
+        1120
+      ],
+      "id": "27e39e20-7deb-4b73-b056-9176bda3b86c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE",
+          "mode": "list",
+          "cachedResultName": "LinkedIN_Live",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ $('Get Pending Topics').item.json.Topic }}",
+            "Status": "Rejected"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Difficulty",
+              "displayName": "Difficulty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Link",
+              "displayName": "Image Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1520,
+        1296
+      ],
+      "id": "09bbe584-0ba8-452c-acc6-e3de914585c5",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WKW9r7UgExXGVp6b",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE",
+          "mode": "list",
+          "cachedResultName": "LinkedIN_Live",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ $('Get Pending Topics').item.json.Topic }}",
+            "Content": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Difficulty",
+              "displayName": "Difficulty",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Link",
+              "displayName": "Image Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        608
+      ],
+      "id": "6f5efc3b-8fba-4da1-952b-bae8ec77c91f",
+      "name": "Append or Update Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WKW9r7UgExXGVp6b",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "=linkedin_{{ Date.now() }}.png",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "root",
+          "mode": "list",
+          "cachedResultName": "/ (Root folder)",
+          "cachedResultUrl": "https://drive.google.com/drive"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        560,
+        1136
+      ],
+      "id": "086d5e7e-7984-4e97-a6b6-5e0bc8c1242e",
+      "name": "Update file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "WWAxKJxCL7BXaC7y",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE",
+          "mode": "list",
+          "cachedResultName": "LinkedIN_Live",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19MjEHSjTyYEnFyoTNMBzRDpuqc71YqNv6H7NktX_ZuE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Topic",
+              "lookupValue": "={{ $('Get Pending Topics').item.json.Topic }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        1136
+      ],
+      "id": "ca5b681a-073c-4c3d-9b7b-0ee2e3e1d1b2",
+      "name": "Get row(s)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WKW9r7UgExXGVp6b",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0563650c-57e3-4e7e-add0-9705e475f963",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        768
+      ],
+      "id": "4a8b1768-449d-47c9-904d-36e26ff70676",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "zFuAM4SQIsOZBuqS",
+          "name": "OpenAI account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        768
+      ],
+      "id": "456b961a-e402-41e1-a0bf-c87ece918b48",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "JZorqgOuT13ZsFbx",
+          "name": "thehandico"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        784
+      ],
+      "id": "923513aa-8195-4b48-9205-f5e7cd24a838",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "JZorqgOuT13ZsFbx",
+          "name": "thehandico"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        1312
+      ],
+      "id": "d8d33c29-aaa7-4a95-b05f-8b659415aa30",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "JZorqgOuT13ZsFbx",
+          "name": "thehandico"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-image-1-mini"
+        },
+        "prompt": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        1136
+      ],
+      "id": "c87cf888-50b4-4363-98f7-52f4351485c4",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "JZorqgOuT13ZsFbx",
+          "name": "thehandico"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "VglrUiBWui",
+        "text": "={{ $('Get row(s)').item.json.Content }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        1104
+      ],
+      "id": "eea2fecf-79cb-42f8-b3a1-83ed28e98322",
+      "name": "Create a post1",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "gc8W4qMBqnx7to2j",
+          "name": "Sandesh LinkedIn account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Draft Copywriter": {
+      "main": [
+        [
+          {
+            "node": "Style & Compliance Editor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human Approval (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Timed Out (48h)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Structure & Logic Designer",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Style & Compliance Editor": {
+      "main": [
+        [
+          {
+            "node": "Append or Update Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure & Logic Designer": {
+      "main": [
+        [
+          {
+            "node": "Draft Copywriter",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Topics": {
+      "main": [
+        [
+          {
+            "node": "Structure & Logic Designer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Post Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Published Content": {
+      "main": [
+        [
+          {
+            "node": "Get row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update file": {
+      "main": [
+        [
+          {
+            "node": "Log Published Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s)": {
+      "main": [
+        [
+          {
+            "node": "Human Approval (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structure & Logic Designer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Copywriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Style & Compliance Editor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Update file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c613c3ab-bb94-4cfe-bb00-4e74fd260a06",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "47fb0e68bf2b3d9c9aa6125377b04622b1151a8aed7ce1934f124de45acbe638"
+  },
+  "nodeGroups": [],
+  "id": "Hsfzxsyp9XDK9ALb",
+  "tags": []
+}
